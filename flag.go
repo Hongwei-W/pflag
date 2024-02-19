@@ -549,7 +549,7 @@ func (f *Flag) defaultIsZeroValue() bool {
 		return f.DefValue == ""
 	case *ipValue, *ipMaskValue, *ipNetValue:
 		return f.DefValue == "<nil>"
-	case *intSliceValue, *stringSliceValue, *stringArrayValue:
+	case *intSliceValue, *stringSliceValue, *stringArrayValue, *stringToInt64Value, *stringToIntValue, *stringToStringValue:
 		return f.DefValue == "[]"
 	default:
 		switch f.Value.String() {
@@ -560,6 +560,8 @@ func (f *Flag) defaultIsZeroValue() bool {
 		case "":
 			return true
 		case "0":
+			return true
+		case "[]":
 			return true
 		}
 		return false
