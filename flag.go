@@ -105,6 +105,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -609,6 +610,27 @@ func UnquoteUsage(flag *Flag) (name string, usage string) {
 	return
 }
 
+// DocName is intended to work in conjunction with UnquoteUsage, taking a name
+// returned from it and de-humanizing it for use as a placeholder in
+// documentation. If the name contains commas and/or "or" (and no ellipsis),
+// it's interpreted as a list of actual values to choose from. We wrap these
+// selections with curly braces and separate them with a pipe "|". Otherwise, we
+// interpret it as a placeholder for the actual value. We replace "_" with " "
+// and wrap it with "<" and ">".
+// Examples:
+//   - must choose one of a, b, or c => {a|b|c}
+//   - list of values with format value1,... => <value1,...>
+//   - a user name => <user_name>
+func DocName(varname string) string {
+	docNameRegex := `,? or |, ?`
+	re := regexp.MustCompile(docNameRegex)
+	parts := re.Split(varname, -1)
+	if len(parts) > 1 && !strings.Contains(varname, "...") {
+		return "{" + strings.Join(parts, "|") + "}"
+	}
+	return "<" + strings.ReplaceAll(varname, " ", "_") + ">"
+}
+
 // Splits the string `s` on whitespace into an initial substring up to
 // `i` runes in length and the remainder. Will go `slop` over `i` if
 // that encompasses the entire string (which allows the caller to
@@ -701,6 +723,7 @@ func (f *FlagSet) FlagUsagesWrapped(cols int) string {
 
 		varname, usage := UnquoteUsage(flag)
 		if varname != "" {
+			varname = DocName(varname)
 			line += " " + varname
 		}
 		if flag.NoOptDefVal != "" {
