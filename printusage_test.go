@@ -75,37 +75,26 @@ func TestPrintUsage_2(t *testing.T) {
 
 func setUpPFlagSet3(buf io.Writer) *FlagSet {
 	f := NewFlagSet("test", ExitOnError)
-      f.StringP("birth-date", "b", "2000-01-01", "the `birth date` of our main character") // results in <birth_date>
-      f.String("event", "birthday party", "choose from `birthday party, wedding or graduation`") // results in {birthday party|wedding|graduation}
+	f.StringP("birth-date", "b", "2000-01-01", "the `birth date` of our main character")                             // results in <birth_date>
+	f.String("event", "birthday party", "choose from `birthday party, wedding or graduation`")                       // results in {birthday party|wedding|graduation}
 	f.StringArray("friend", []string{"Alice", "Bob"}, "the friends of our main actor, in the format of `name1,...`") // results in <name1,...>
-	f.StringP("name", "l", "Alice", "the `name` of our main actor") // results in <name>
-	f.String("place", "park", "choose from `park, home, office`")  // results in {park|home|office}
+	f.StringP("name", "l", "Alice", "the `name` of our main actor")                                                  // results in <name>
+	f.String("place", "park", "choose from `park, home, office`")                                                    // results in {park|home|office}
 	f.SetOutput(buf)
 	return f
 }
 
-const expectedOutput3 = `  -b, --birth-date <birth_date>                     the birth date of our
-                                                    main character
-                                                    (default "2000-01-01")
-      --event {birthday party|wedding|graduation}   choose from birthday
-                                                    party, wedding or
-                                                    graduation (default
-                                                    "birthday party")
-      --friend <name1,...>                          the friends of our
-                                                    main actor, in the
-                                                    format of name1,...
-                                                    (default [Alice,Bob])
-  -l, --name <name>                                 the name of our main
-                                                    actor (default "Alice")
-      --place {park|home|office}                    choose from park,
-                                                    home, office (default
-                                                    "park")
+const expectedOutput3 = `  -b, --birth-date <birth_date>                     the birth date of our main character (default "2000-01-01")
+      --event {birthday party|wedding|graduation}   choose from birthday party, wedding or graduation (default "birthday party")
+      --friend <name1,...>                          the friends of our main actor, in the format of name1,... (default [Alice,Bob])
+  -l, --name <name>                                 the name of our main actor (default "Alice")
+      --place {park|home|office}                    choose from park, home, office (default "park")
 `
 
 func TestPrintUsage_3(t *testing.T) {
 	buf := bytes.Buffer{}
 	f := setUpPFlagSet3(&buf)
-	res := f.FlagUsagesWrapped(80)
+	res := f.FlagUsages()
 	if res != expectedOutput3 {
 		t.Errorf("Expected \n%q \nActual \n%q", expectedOutput3, res)
 	}
